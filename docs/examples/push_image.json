@@ -1,0 +1,15 @@
+{
+  "headers": {
+	"type": "image",
+	"text": "Cool animal pictures!"
+  },
+  "payload": {
+	"category": "animals",
+	"watermark": "UNIFIED ANIMAL DELIVERY",
+	"source": "http://lorempixel.com"
+  },
+  "target": {
+	"services": ["test"],
+	"platforms": ["ios", "android", "windows"]
+  }
+}
