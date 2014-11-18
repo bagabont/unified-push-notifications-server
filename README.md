@@ -20,12 +20,9 @@ POST /api/v1/subscribers/:id?platform={platform}&service={service_name}&token={p
 Status: 201 Created || 204 No Content
 ```
 
-### Retrieving Payload of a Push Event
+### Retrieving Payload
 
-To retrieve a push event payload you should send the ID of the notification as a parameter.
-
-##### Type
-Allows different resources to be opened via push notifications. Moreover you could make client to open URL when user clicks on push notification. For URL notification you could set in which browser should the URL be opened and browser title. For launching in the default browser set `"default_browser" :true`, for internal browser `"default_browser" :false`.  
+To retrieve a push event payload you should send the ID of the event as a parameter.
 
 **Request:**
 ```httph
@@ -38,92 +35,30 @@ Status: 200 OK
 ```
 ```json
 {
+    "object": "payload",
+    "type": "image",
     "payload": {
-		"type": "image",
-        "category": "animals",
-        "watermark": "Our new Hippo is here!!!"
+        "source": "http://lorempixel.com",
+        "watermark": "UNIFIED PUSH DELIVERY",
+        "category": "animals"
     }
 }
 ```
 
 ## Server Integration
-### Send Notification
 
-#### Create and send push notification
-**Request:**
-```httph
-POST /api/v1/events
-Content-Type: application/json
-```
-```json
-{
-    "headers": {
-        "type": "text",
-        "text": "New text push received!"        
-    },
-    "payload": {
-		"content": "Content text"
-    },
-    "target": {
-        "services": [ "test", "test1" ],
-        "platforms": [ "ios", "android", "windows" ]
-    }
-}
-```
-
-**Response:**
-```httph
-Status: 200 OK
-```
-```json
-notification:{
-  "id": "545e556514a01fbc16773558"
-}
-```
-
-#### Resend push notification
-**Request:**
-```httph
-POST /api/v1/notifications/:id
-```
-
-**Response:**
-```httph
-Status: 200 OK
-```
-```json
-notification:{
-  "id": "545e556514a01fbc16773558"
-}
-```
+### Protocol Description
 
 #### Headers
 
-##### Text 
+##### Type
+Defines the type of the notification payload. Allows different resources to be opened via push notifications.
+
+##### Text
 Short text notification message.
 
-**Request:**
-```httph
-POST /api/v1/notifications
-Content-Type: application/json
-```
-```json
-{
-    "headers": {
-        "text": "New LINK push received!"        
-    },
-    "payload": {
-		"type": "link",
-    	"url" : "http://example.com",
-    	"default_browser" : true,
-    	"browser_title" : "Custom title"
-    },
-    "target": {
-    	"services": ["test", "test1"],
-    	"platforms": ["ios", "android", "wp"]
-    }
-}
-```
+#### Payload
+Customer defined protocol, which is directly dependent of the `"type"` header. Contains additional resources that can be retrieved by the client applications.
 
 #### Target
 Use JSON format for target request param. You can target by following params:
@@ -140,8 +75,63 @@ Target all iOS devices from Singapore with application version (less than or equ
 
 ```json
 {
-  "platforms" : "ios",
-  "country" : "sg",
-  "version" : ["<= 2","~> 4"]
+    "services": ["test", "test123"],
+    "platforms": "ios",
+    "country": "sg",
+    "version": ["<= 2","~> 4"]
+}
+```
+
+### Send Notification
+
+#### Create and send push notification
+**Request:**
+```httph
+POST /api/v1/events
+Content-Type: application/json
+```
+```json
+{
+    "headers": {
+	    "type": "image",
+	    "text": "Cool animal pictures!"
+    },
+    "payload": {
+	    "category": "animals",
+    	"watermark": "UNIFIED ANIMAL DELIVERY",
+	    "source": "http://lorempixel.com"
+    },
+    "target": {
+	    "services": ["test"],
+	    "platforms": ["ios", "android", "windows"]
+    }
+}
+```
+
+**Response:**
+```httph
+Status: 200 OK
+```
+```json
+{
+    "object": "event",
+    "id": "546b46a3277d5802000d09f0"
+}
+```
+
+#### Resend push notification
+**Request:**
+```httph
+POST /api/v1/events/:id
+```
+
+**Response:**
+```httph
+Status: 200 OK
+```
+```json
+{
+    "object": "event",
+    "id": "546b46a3277d5802000d09f0"
 }
 ```

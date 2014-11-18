@@ -95,8 +95,8 @@ module.exports = function (passport, bodyParser) {
 
             // send back event ID in response
             return res.send({
-                object: event.object,
-                id: event.id
+                object: model.object,
+                id: model.id
             });
         })
         .delete(function (req, res) {
