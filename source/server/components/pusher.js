@@ -68,12 +68,14 @@ function pushToGCM(subscribers, event) {
     if (!subscribers || subscribers.length == 0) {
         return;
     }
-    var ids = subscribers.map(function (s) {
-        return s.id;
+    var tokens = subscribers.map(function (s) {
+        return s.token;
     });
 
-    gcmSender.send(event.headers.text, ids, 4, function (err, result) {
-        console.log(result);
+    gcmSender.send(event.headers.text, tokens, 4, function (err, result) {
+        if (err) {
+            throw err;
+        }
     });
 }
 
