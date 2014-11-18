@@ -60,7 +60,6 @@ function pushToWindows(subscribers, event) {
             if (err) {
                 throw err;
             }
-            console.log(result);
         });
     }
 }
