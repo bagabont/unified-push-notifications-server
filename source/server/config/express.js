@@ -15,11 +15,8 @@ module.exports = function (config, app, passport) {
     app.use('/api/v1', subscribers);
     app.use('/api/v1', events);
 
-    // catch 404 and forward to error handler
     app.use(function (req, res, next) {
-        var err = new Error('Not Found');
-        err.statusCode = 404;
-        next(err);
+        res.status(404).send({status: 404, url: req.url});
     });
 
     // error handler
