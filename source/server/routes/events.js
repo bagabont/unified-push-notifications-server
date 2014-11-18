@@ -1,5 +1,6 @@
 var router = require('express').Router(),
     mongoose = require('mongoose'),
+    Result = require('../models/result'),
     Event = require('../models/event');
 
 module.exports = function (config, passport, bodyParser) {
@@ -121,6 +122,35 @@ module.exports = function (config, passport, bodyParser) {
                 type: event.headers.type,
                 payload: event.payload
             });
+        });
+
+    router.route('/events/:id/:result')
+        .get(function (req, res) {
+            var event = req.event;
+            if (!event) {
+                res.status(404).send();
+            }
+
+            Result.find({eid: event.id}, function (err, models) {
+                if (err) {
+                    return next(err)
+                }
+                else if (!models) {
+                    return res.status(404).send();
+                }
+                var results = [];
+                for (var i = 0; i < models.length; i++) {
+                    var r = {
+                        object: models[i].object,
+                        eid: models[i].eid,
+                        provider: models[i].provider,
+                        data: models[i].data
+                    };
+                    results.push(r);
+                }
+                res.send(results);
+            });
+
         });
     return router;
 };

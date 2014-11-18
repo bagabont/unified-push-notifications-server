@@ -1,5 +1,6 @@
 var mpns = require('mpns'),
     gcm = require('node-gcm'),
+    Result = require('../models/result'),
     Subscriber = require('../models/subscriber');
 
 var gcmSender;
@@ -60,6 +61,7 @@ function pushToWindows(subscribers, event) {
             if (err) {
                 throw err;
             }
+            storeResult('mpns', event, result);
         });
     }
 }
@@ -75,6 +77,20 @@ function pushToGCM(subscribers, event) {
     gcmSender.send(event.headers.text, tokens, 4, function (err, result) {
         if (err) {
             throw err;
+        }
+        storeResult('gcm', event, result);
+    });
+}
+
+function storeResult(provider, event, result) {
+    var model = new Result({
+        provider: provider,
+        eid: event.id,
+        data: result
+    });
+    model.save(function (err) {
+        if (err) {
+            throw  err;
         }
     });
 }
