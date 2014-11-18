@@ -4,7 +4,7 @@
   "private": true,
   "author": "Momchil Marinov",
   "scripts": {
-	"start": "node ./source/server/bin/www"
+	"start": "node ./source/server/bin/www.js"
   },
   "repository": {
 	"type": "git",
