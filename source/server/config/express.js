@@ -1,13 +1,13 @@
 var bodyParser = require('body-parser'),
     User = require('../models/user');
 
-module.exports = function (app, passport) {
+module.exports = function (config, app, passport) {
     app.disable('x-powered-by');
     app.disable('etag');
     app.use(passport.initialize());
 
     var services = require('../routes/services')(passport),
-        events = require('../routes/events')(passport, bodyParser),
+        events = require('../routes/events')(config, passport, bodyParser),
         subscribers = require('../routes/subscribers')(passport);
 
     // set API routers

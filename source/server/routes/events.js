@@ -1,9 +1,11 @@
 var router = require('express').Router(),
-    messenger = require('../components/pusher'),
     mongoose = require('mongoose'),
     Event = require('../models/event');
 
-module.exports = function (passport, bodyParser) {
+module.exports = function (config, passport, bodyParser) {
+
+    var messenger = require('../components/pusher')(config);
+
     router.use(bodyParser.json());
 
     router.route('/events')

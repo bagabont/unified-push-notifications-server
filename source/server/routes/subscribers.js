@@ -13,7 +13,7 @@ module.exports = function (passport) {
                 for (var i = 0; i < models.length; i++) {
                     var s = {
                         object: models[i].object,
-                        id: models[i].id,
+                        sid: models[i].sid,
                         token: models[i].token,
                         service: models[i].service,
                         platform: models[i].platform,
@@ -28,7 +28,7 @@ module.exports = function (passport) {
         });
 
     router.param('id', function (req, res, next, id) {
-        Subscriber.findOne({id: id}, function (err, model) {
+        Subscriber.findOne({sid: id}, function (err, model) {
             if (err) {
                 return next(err);
             }
@@ -45,7 +45,7 @@ module.exports = function (passport) {
                 var model = req.subscriber;
                 res.send({
                     object: model.object,
-                    id: model.id,
+                    sid: model.sid,
                     token: model.token,
                     service: model.service,
                     platform: model.platform,
@@ -56,13 +56,13 @@ module.exports = function (passport) {
             }
         })
         .post(function (req, res, next) {
-            var id = req.params.id,
+            var sid = req.params.id,
                 token = req.query.token,
                 platform = req.query.platform,
                 service = req.query.service;
 
             if (req.subscriber) {
-                var query = {id: id};
+                var query = {sid: sid};
                 var update = {token: token};
                 Subscriber.findOneAndUpdate(query, update, function (err) {
                     if (err) {
@@ -73,7 +73,7 @@ module.exports = function (passport) {
             }
             else {
                 var model = new Subscriber({
-                    id: id,
+                    sid: sid,
                     token: token,
                     platform: platform.toLowerCase(),
                     service: service.toLowerCase()
@@ -90,7 +90,7 @@ module.exports = function (passport) {
             if (!req.subscriber) {
                 return res.status(404).send();
             }
-            var query = {id: req.params.id};
+            var query = {sid: req.params.id};
             var update = {token: req.query.token};
             Subscriber.findOneAndUpdate(query, update, function (err) {
                 if (err) {
@@ -103,7 +103,7 @@ module.exports = function (passport) {
             if (!req.subscriber) {
                 return res.status(404).send();
             }
-            var query = {id: req.params.id};
+            var query = {sid: req.params.id};
             Subscriber.findOneAndRemove(query, function (err) {
                 if (err) {
                     return next(err);

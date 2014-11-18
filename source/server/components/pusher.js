@@ -1,9 +1,13 @@
 var mpns = require('mpns'),
+    gcm = require('node-gcm'),
     Subscriber = require('../models/subscriber');
 
-var Pusher = function () {
+var gcmSender;
 
+var Pusher = function (config) {
+    gcmSender = new gcm.Sender(config.gcmApiKey);
 };
+
 /**
  * Sends an event to all subscribers listed as target.
  * @param event {Event} Event to be pushed.
@@ -18,46 +22,62 @@ Pusher.prototype.send = function (event) {
     if (!event.payload) {
         throw new Error('Payload not defined.');
     }
-
     var target = event.target;
 
     Subscriber.find({})
         .where('service').in(target.services)
-        .where('platform').in(target.platforms)
+        .where('platform').in(target.platforms) // optimizes query results
         .exec(function (err, subscribers) {
             if (err) {
                 throw err;
             }
-            var subscriber;
-            for (var i = 0; i < subscribers.length; i += 1) {
-                subscriber = subscribers[i];
 
-                switch (subscriber.platform) {
-                    case 'windows':
-                        pushToWindows(subscriber.token, event);
-                        break;
-                    case 'ios':
-                        console.log('Not implemented');
-                        break;
-                    case 'android':
-                        console.log('Not implemented');
-                        break;
-                }
-            }
+            // push to windows
+            var windowsSubscribers = subscribers.filter(function (s) {
+                return s.platform === 'windows';
+            });
+            pushToWindows(windowsSubscribers, event);
+
+            // push to GCM
+            var androidSubscribers = subscribers.filter(function (s) {
+                return s.platform === 'android';
+            });
+            pushToGCM(androidSubscribers, event);
         });
 };
 
-function pushToWindows(token, event) {
+function pushToWindows(subscribers, event) {
+    if (!subscribers || subscribers.length == 0) {
+        return;
+    }
     var title = event.headers.text.toString(),
         content = event.headers.type == 'text' ? event.payload.content : '',
         id = event.id;
 
-    var options = {text1: title, text2: content, param: '?nid=' + id};
-    mpns.sendToast(token, options, function (err) {
-        if (err) {
-            throw err;
-        }
+    var options = {text1: title, text2: content, param: '?eid=' + id};
+    for (var i = 0; i < subscribers.length; i += 1) {
+        mpns.sendToast(subscribers[i].token, options, function (err, result) {
+            if (err) {
+                throw err;
+            }
+            console.log(result);
+        });
+    }
+}
+
+function pushToGCM(subscribers, event) {
+    if (!subscribers || subscribers.length == 0) {
+        return;
+    }
+    var ids = subscribers.map(function (s) {
+        return s.id;
+    });
+
+    gcmSender.send(event.headers.text, ids, 4, function (err, result) {
+        console.log(result);
     });
 }
 
-module.exports = new Pusher();
+module.exports = function (config) {
+    return new Pusher(config)
+};

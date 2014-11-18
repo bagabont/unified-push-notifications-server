@@ -11,7 +11,7 @@ var app = express();
 // Load configuration
 require('./config/mongoose')(config);
 require('./config/passport')(passport);
-require('./config/express')(app, passport);
+require('./config/express')(config, app, passport);
 
 var options = {
     pfx: config.certificate,
