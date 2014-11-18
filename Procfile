@@ -1,1 +1,1 @@
-web: node ./source/server/bin/www.js
+web: node ./source/server/bin/www
